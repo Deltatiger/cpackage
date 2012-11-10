@@ -1,3 +1,5 @@
+#define _cdatatypes
+
 struct productList
 {
 	/* This data type hold all the details of a product and is used when displaying the inventory*/

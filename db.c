@@ -1,6 +1,3 @@
-#include "cdatatypes.h"
-#include "db.h"
-#include "strfunctions.h"
 
 /*void get_entire_db1(struct *productLits[], int count)	{
 	FILE *fp;
@@ -59,7 +56,7 @@
 void get_entire_db(struct productList *t, int *count)	{
 	FILE *fp;
 	int i =0 , j = 0 ,k = 0;
-	char temp[10, ch;
+	char temp[15], ch;
 	void *ptr[4];
 	fp = fopen("b_db.txt", "r");
 	ch = getc(fp);	
@@ -72,11 +69,11 @@ void get_entire_db(struct productList *t, int *count)	{
 			if(ch == '|')	{
 				temp[k] = '\0';
 				if(j == 0 || j == 1)	{
-					strcpy(ptr[j], temp);
+					strcpy((char *)ptr[j], temp);
 				} else if(j == 2)	{
-					*ptr[2] = get_i_num(temp); 
+					*(int *)ptr[2] = get_i_num(temp); 
 				} else {
-					*ptr[3] = get_f_num(temp);
+					*(float *)ptr[3] = get_f_num(temp);
 				}
 				k = 0;
 				j++;
@@ -86,8 +83,8 @@ void get_entire_db(struct productList *t, int *count)	{
 				} else {
 					temp[k] = ch;
 				}
+				k++;
 			}
-			k++;
 		} else {
 			temp[j] = '\0';
 			i++;

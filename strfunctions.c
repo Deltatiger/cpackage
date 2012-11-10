@@ -1,6 +1,3 @@
-#include "strfunctions.h"
-#include <math.h>
-
 float get_f_num(char *p)	{
 	char *temp1, *temp2;
 	int num, i;
