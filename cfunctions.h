@@ -1,3 +1,5 @@
-#include "cfunctions.c"
-
-int get_num_from_str(char *p);
+#ifndef _cfunctions
+ 	#define _cfunctions
+ 	float get_chars_num(char c);
+ 	#include "cfunctions.c"
+#endif

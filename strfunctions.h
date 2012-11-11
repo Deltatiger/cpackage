@@ -9,11 +9,14 @@
  #define _string
  #include <string.h>
 #endif
+#ifndef _cfunctions
+ #include "cfunctions.h"
+#endif
 
 
 #ifndef _strfunctions
  	#define _strfunctions
  	int get_i_num(char *s);
- 	float get_f_num(char *p);
+ 	double get_f_num(char *p);
  	#include "strfunctions.c"
 #endif

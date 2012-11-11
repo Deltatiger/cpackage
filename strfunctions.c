@@ -1,15 +1,21 @@
-float get_f_num(char *p)	{
-	char *temp1, *temp2;
+double get_f_num(char *p)	{
+	char *bDecimal, temp[15];
 	int num, i;
-	float decNum = 0;
-	temp1 = strtok(p, ".");
-	temp2 = strtok(NULL, ".");
-	num = get_i_num(temp1);
-	for(i = 0; temp2[i] != '\0'; i++)	{
-		if(temp2[i] == ' ' || temp2[i] == '\n')	{
+	double decNum = 0;
+	strcpy(temp, p);
+	num = strlen(temp);
+	for(i = 0; i < num; i++)	{
+		if(temp[i] == '.')	{
+			temp[i] = '\0';
+			bDecimal = &temp[i+1];
+		}
+	}
+	num = get_i_num(temp);
+	for(i = 0; bDecimal[i] != '\0'; i++)	{
+		if(bDecimal[i] == ' ' || bDecimal[i] == '\n')	{
 			continue;
 		}
-		decNum += (temp2[i] - 48)/pow(10, i+1);
+		decNum += (get_chars_num(bDecimal[i]))/pow(10, i+1);
 	}
 	decNum += num;
 	return decNum;

@@ -72,8 +72,6 @@ void get_entire_db(struct productList *t, int *count)	{
 					strcpy((char *)ptr[j], temp);
 				} else if(j == 2)	{
 					*(int *)ptr[2] = get_i_num(temp); 
-				} else {
-					*(float *)ptr[3] = get_f_num(temp);
 				}
 				k = 0;
 				j++;
@@ -87,7 +85,12 @@ void get_entire_db(struct productList *t, int *count)	{
 			}
 		} else {
 			temp[j] = '\0';
+			*(float *)ptr[3] = get_f_num(temp);
 			i++;
+			ptr[0] = &t[i].id[0];
+			ptr[1] = &t[i].name[0];
+			ptr[2] = &t[i].qty;
+			ptr[3] = &t[i].price;
 			j = 0;
 			k = 0;
 		}
