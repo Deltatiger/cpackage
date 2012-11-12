@@ -5,11 +5,7 @@
 
 int main()	{
 	struct productList t[20000];
-	int count, i;
+	int count;
 	get_entire_db(t, &count);
-	for(i = 0; i <= count-1; i++)	{
-		printf("%s %s %d %f\n", t[i].name, t[i].id, t[i].qty, t[i].price);
-	}
-	printf("%d %d", count , i);
 	return 0;
 }

@@ -84,7 +84,7 @@ void get_entire_db(struct productList *t, int *count)	{
 				k++;
 			}
 		} else {
-			temp[j] = '\0';
+			temp[k] = '\0';
 			*(float *)ptr[3] = get_f_num(temp);
 			i++;
 			ptr[0] = &t[i].id[0];
