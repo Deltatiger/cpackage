@@ -1,5 +1,5 @@
 double get_f_num(char *p)	{
-	char *bDecimal, temp[15];
+	char *bDecimal = NULL, temp[15];
 	int num, i;
 	double decNum = 0;
 	strcpy(temp, p);
@@ -11,11 +11,13 @@ double get_f_num(char *p)	{
 		}
 	}
 	num = get_i_num(temp);
-	for(i = 0; bDecimal[i] != '\0'; i++)	{
-		if(bDecimal[i] == ' ' || bDecimal[i] == '\n')	{
-			continue;
+	if(bDecimal != NULL)	{
+		for(i = 0; bDecimal[i] != '\0'; i++)	{
+			if(bDecimal[i] == ' ' || bDecimal[i] == '\n')	{
+				continue;
+			}
+			decNum += (get_chars_num(bDecimal[i]))/pow(10, i+1);
 		}
-		decNum += (get_chars_num(bDecimal[i]))/pow(10, i+1);
 	}
 	decNum += num;
 	return decNum;
