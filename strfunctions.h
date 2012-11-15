@@ -16,6 +16,7 @@
 
 #ifndef _strfunctions
  	#define _strfunctions
+ 	//Remove this
  	int get_i_num(char *s);
  	double get_f_num(char *p);
  	#include "strfunctions.c"

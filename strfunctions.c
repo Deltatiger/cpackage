@@ -10,7 +10,7 @@ double get_f_num(char *p)	{
 			bDecimal = &temp[i+1];
 		}
 	}
-	num = get_i_num(temp);
+	num = atoi(temp);
 	if(bDecimal != NULL)	{
 		for(i = 0; bDecimal[i] != '\0'; i++)	{
 			if(bDecimal[i] == ' ' || bDecimal[i] == '\n')	{
