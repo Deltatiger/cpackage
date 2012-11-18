@@ -5,6 +5,7 @@ struct _entryFour	{
 	GtkWidget *entry2;
 	GtkWidget *entry3;
 };
+
 static void new_item_entry(GtkWidget *widget, struct _entryFour *ent);
 
 int main(int argc, char *argv[])	{
