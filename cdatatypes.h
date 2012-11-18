@@ -3,7 +3,7 @@
 struct productList
 {
 	/* This data type hold all the details of a product and is used when displaying the inventory*/
-	char name[25];
+	char name[50];
 	char id[11];
 	int qty;
 	float price;

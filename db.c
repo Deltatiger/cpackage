@@ -1,82 +1,25 @@
-
-/*void get_entire_db1(struct *productLits[], int count)	{
-	FILE *fp;
-	char ch;
-	int id[20000];
-	char temp[15];
-	char name[20000][20];
-	int qty[20000];
-	char price[20000][10];
-	int i = 0, j = 0 ,k  = 0;
-	fp = fopen("a_db.txt", "r");
-	ch = getc(fp);
-	while(ch != EOF)	{
-		if(ch != '#')	{
-			if(ch == '|')	{
-				if( k == 0)	{
-					temp[j] = '\0';
-					id[i] = get_num(temp);
-				} else if( k == 1)	{
-					name[i][j] = '\0';
-				} else	{
-					temp[j] = '\0';
-					qty[i] = get_num(temp);
-				}
-				j = 0;
-				k++;
-			} else {
-				if (k == 0)	{
-					//Store in id
-					temp[j] = ch;
-				} else if( k == 1)	{
-					//store in name
-					name[i][j] = ch;
-				} else if(k == 2)	{
-					//Store in qty
-					temp[j] = ch;
-				} else {
-					//store in price
-					price[i][j] = ch;
-				}
-				j++;
-			}
-		} else {
-			price[i][j] = '\0';
-			i++;
-			k = 0;
-			j = 0;
-		}
-		ch = getc(fp);
-	}
-	for(j = 0; j < i; j++)	{
-		printf("%d %d\n", id[j], qty[j]);
-	}
-}*/
-
-void get_entire_db(struct productList *t, int *count)	{
+void get_from_db(struct productList *t, int *count, char *fileName)	{
+	//Gets all the data from the file , puts them into the productLists array and sets count
 	FILE *fp;
 	int i =0 , j = 0 ,k = 0;
-	char temp[15], ch;
-	void *ptr[4];
-	fp = fopen("b_db.txt", "r");
+	char temp[50], ch;
+	fp = fopen(fileName, "r");
 	ch = getc(fp);	
-	ptr[0] = &t[i].id[0];
-	ptr[1] = &t[i].name[0];
-	ptr[2] = &t[i].qty;
-	ptr[3] = &t[i].price;
 	while(ch != EOF)	{
 		if(ch != '#')	{
 			if(ch == '|')	{
 				temp[k] = '\0';
-				if(j == 0 || j == 1)	{
-					strcpy((char *)ptr[j], temp);
-				} else if(j == 2)	{
-					*(int *)ptr[2] = get_i_num(temp); 
+				if(j == 0)	{
+					strcpy(&t[i].id[0], temp);
+				} else if(j == 1)	{
+					strcpy(&t[i].name[0], temp);
+				}	else if(j == 2)	{
+					t[i].qty = atoi(temp); 
 				}
 				k = 0;
 				j++;
 			} else {
-				if(ch == ' ' || ch == '\n')	{
+				if(ch == '\n')	{
 					k--;
 				} else {
 					temp[k] = ch;
@@ -85,16 +28,89 @@ void get_entire_db(struct productList *t, int *count)	{
 			}
 		} else {
 			temp[k] = '\0';
-			*(float *)ptr[3] = get_f_num(temp);
+			t[i].price= atof(temp);
 			i++;
-			ptr[0] = &t[i].id[0];
-			ptr[1] = &t[i].name[0];
-			ptr[2] = &t[i].qty;
-			ptr[3] = &t[i].price;
 			j = 0;
 			k = 0;
 		}
 		ch = getc(fp);
 	}
 	*count = i;
+}
+
+void db_write(struct productList *t, int count, const char *fileName)	{
+	//This functions writes/rewirtes the structures to the datafile
+	char temp[125];
+	FILE *fp;
+	int i = 0, j = 0;
+	fp = fopen(fileName, (count == -1 ? "a" : "w"));
+	if(count == -1)	{
+		//Append data to the Filename file
+		sprintf(temp, "%s|%s|%d|%f#\n", t->id, t->name, t->qty, t->price);
+		while(temp[i] != '\0')	{
+			fputc(temp[i++], fp);
+		}
+		fclose(fp);
+	} else {
+		//Deletes the file and rewrites the data
+		while(i < count)	{
+			if(t[i].id[0] != '\0')	{
+				sprintf(temp, "%s|%s|%d|%f#\n", t[i].id, t[i].name, t[i].qty, t[i].price);
+				j = 0;
+			} else {
+				i++;
+				continue;
+			}
+			while(temp[j] != '\0')	{
+				fputc(temp[j++], fp);
+			}
+			i++;
+		}
+	}
+}
+
+void remove_entry(const char *nameId, const char *fileName)	{
+	//This removes the entry and then puts it back into the file.
+	struct productList temp[1000];
+	int count, i, type;
+	get_from_db(temp, &count, fileName);
+	type = IS_NUM(nameId[0]);
+	for(i = 0; i < count; i++)	{
+		if(type == 0)	{
+			if(strcmp(temp[i].name, nameId) == 0)	{
+				strcpy(temp[i].name, "");
+				strcpy(temp[i].id, "");
+				temp[i].qty = 0;
+				temp[i].price = 0;
+				break;
+			}
+		} else {
+			if(strcmp(temp[i].id, nameId) == 0)	{
+				strcpy(temp[i].name, "");
+				strcpy(temp[i].id, "");
+				temp[i].qty = 0;
+				temp[i].price = 0;
+				break;
+			}
+		}
+	}
+	db_write(temp, count, fileName);
+}
+void mod_entry(struct productList newDetails, const char *replaceNameId, const char *fileName)	{
+	struct productList temp[200];
+	int count, i, type;
+	get_from_db(temp, &count, fileName);
+	type = IS_NUM(replaceNameId[0]);
+	for(i = 0; i < count; i++)	{
+		if(type == 1)	{
+			if(strcmp(temp[i].id, replaceNameId) == 0)	{
+				temp[i] = newDetails;
+			}
+		}else {
+			if(strcmp(temp[i].name, replaceNameId) == 0)	{
+				temp[i] = newDetails;
+			}
+		}
+	}
+	db_write(temp, count, fileName);
 }
