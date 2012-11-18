@@ -114,3 +114,22 @@ void mod_entry(struct productList newDetails, const char *replaceNameId, const c
 	}
 	db_write(temp, count, fileName);
 }
+
+void search_db(struct productList *listOfEntries, int * const count, const char *nameId, const char *fileName)	{
+	struct productList temp[100];
+	int tempCount = 0, i = 0, j = 0, type;
+	*count = 0;
+	get_from_db(temp, &tempCount, fileName);
+	type = IS_NUM(nameId[0]);
+	for(i = 0; i < tempCount, i++)	{
+		if(type == 1)	{
+			if(strstr(temp[i].id, nameId) != NULL)	{
+				listOfEntries[j++] = temp[i];
+			}
+		} else {
+			if(strstr(temp[i].name, nameId) != NULL)	{
+				listOfEntries[j++] = temp[i];	
+			}
+		}
+	}
+}

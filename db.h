@@ -22,6 +22,7 @@
  	void db_write(struct productList *t, int *count, const char *fileName);
  	void remove_entry(const char *nameId, const char *fileName);
  	void mod_entry(struct productList newDetails, const char *replaceNameId, const char *fileName);
+ 	void search_db(struct productList *listOfEntries, const int *count, const char *nameId,const char *fileName);
 	#include "db.c"
 #endif
 
