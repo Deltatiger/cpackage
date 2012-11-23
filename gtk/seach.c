@@ -70,16 +70,20 @@ int main(int argc, char *argv[])	{
 	GtkWidget *vBox;
 	GtkWidget *temp;
 	GtkWidget *selection;
+	GtkWidget *scrollWindow;
 	struct _searchEntryData data;
 
 	gtk_init(&argc, &argv);
 
+	//We set up the main window
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "Search");
 	gtk_window_set_default_size(GTK_WINDOW(window), 400, 500);
 	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+	//We now set up and use the alignment options
 	vBox = gtk_vbox_new(FALSE, 10);
 	temp = gtk_hbox_new(FALSE, 5);
 	label = gtk_label_new("Entry Product Name / ID");
@@ -95,9 +99,15 @@ int main(int argc, char *argv[])	{
 	button = gtk_button_new_with_label("Submit");
 	gtk_box_pack_start(GTK_BOX(vBox), button, 0, 0,0);
 
+	//We set up the scrolled window to help make the lists window scrollable.
+	scrollWindow = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollWindow), GTK_SHADOW_ETCHED_IN);
+	//Now we create the most important list
 	list = gtk_tree_view_new();
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), FALSE);
-	gtk_box_pack_start(GTK_BOX(vBox), list, 0, 0 , 0);
+	gtk_container_add(GTK_CONTAINER(scrollWindow), list);
+	gtk_box_pack_start(GTK_BOX(vBox), scrollWindow, 0, 0 , 0);
 
 	init_list(list);
 	gtk_widget_set_size_request(list, 100, 150);
