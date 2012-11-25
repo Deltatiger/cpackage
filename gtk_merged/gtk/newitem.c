@@ -1,29 +1,18 @@
-#include <gtk/gtk.h>
+extern GtkWidget *mWindow;
 
-struct _entryFour	{
-	GtkWidget *entry1;
-	GtkWidget *entry2;
-	GtkWidget *entry3;
-};
-
-static void new_item_entry(GtkWidget *widget, struct _entryFour *ent);
-
-int main(int argc, char *argv[])	{
-	GtkWidget *window;
+int gtk_newitem_page()	{
 	GtkWidget *vBox, *hBox;
 	GtkWidget *entry;
 	GtkWidget *label;
 	GtkWidget *alignment;
 	GtkWidget *button;
-	struct _entryFour entries;
+	struct _newItem_entryIds entries;
 
-	gtk_init(&argc, &argv);
-
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "New Item");
-	gtk_window_set_default_size(GTK_WINDOW(window), 300, 300);
-	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit),NULL);
+	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(mWindow), "New Item");
+	gtk_window_set_default_size(GTK_WINDOW(mWindow), 300, 300);
+	gtk_window_set_position(GTK_WINDOW(mWindow), GTK_WIN_POS_CENTER);
+	g_signal_connect(mWindow, "destroy", G_CALLBACK(gtk_sub_window_quit), NULL);
 
 	//We start adding stuff to the vBox via the hBox
 	vBox = gtk_vbox_new(TRUE, 5);
@@ -59,7 +48,7 @@ int main(int argc, char *argv[])	{
 
 	entry = gtk_entry_new();
 	entries.entry3 = entry;
-	g_print("+> %p AND %p", entry, entries.entry3);
+	g_print("%p", entry);
 	gtk_widget_set_size_request(entry, 140, 30);
 	gtk_box_pack_start(GTK_BOX(hBox), entry, 0, 0, 0);
 	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 5);
@@ -71,17 +60,7 @@ int main(int argc, char *argv[])	{
 	//Now that we got the vBox all ready lets put it up in the halignment
 	alignment = gtk_alignment_new(0.5 , 0.5, 0, 0);
 	gtk_container_add(GTK_CONTAINER(alignment), vBox);
-	gtk_container_add(GTK_CONTAINER(window), alignment);
-	gtk_widget_show_all(window);
-	gtk_main();
+	gtk_container_add(GTK_CONTAINER(mWindow), alignment);
+	gtk_widget_show_all(mWindow);
 	return 0;
-}
-
-static void new_item_entry(GtkWidget *widget, struct _entryFour *ent)	{
-	const gchar *iName, *iPrice, *iQty;
-	g_print("=> %p", ent->entry);
-	iName = gtk_entry_get_text(GTK_ENTRY(ent->entry1));
-	iPrice = gtk_entry_get_text(GTK_ENTRY(ent->entry2));
-	iQty = gtk_entry_get_text(GTK_ENTRY(ent->entry3));
-	g_print("%s %s %s", iName, iPrice, iQty);
 }
