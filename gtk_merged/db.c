@@ -101,22 +101,22 @@ void remove_entry(const char *nameId, const char *fileName)	{
 	db_write(temp, count, fileName);
 }
 void mod_entry(productList newDetails, const char *replaceNameId, const char *fileName)	{
+	//Here the product name may have changed. So we open up the old one with the id or name and delete it. Then we write it anew where ever we need. But with the same id
 	productList temp[200];
 	int count, i, type;
-	get_from_db(temp, &count, fileName);
-	type = IS_NUM(replaceNameId[0]);
-	for(i = 0; i < count; i++)	{
-		if(type == 1)	{
-			if(strcmp(temp[i].id, replaceNameId) == 0)	{
-				temp[i] = newDetails;
-			}
-		}else {
-			if(strcmp(temp[i].name, replaceNameId) == 0)	{
-				temp[i] = newDetails;
-			}
-		}
+	char tFileName[11];
+	//We delete the old one.
+	if(IS_NUM(replaceNameId[0]))	{
+		sprintf(tFileName, "%c%c%c", replaceNameId[0],replaceNameId[1],replaceNameId[2]);
+		sprintf(tFileName, "%c_db.txt", atoi(fileName));
+		remove_entry(replaceNameId, tFileName);
+	} else {
+		sprintf(tFileName, "%c_db.txt", replaceNameId[0]);
+		remove_entry(replaceNameId, tFileName);
 	}
-	db_write(temp, count, fileName);
+	//Now that the old one is gone. We add a new one
+	strcpy(newDetails.id, get_new_product_id(newDetails.name));
+	db_write(temp, -1, fileName);
 }
 
 void search_db(productList *listOfEntries, int * const count, const char *nameId, const char *fileName)	{

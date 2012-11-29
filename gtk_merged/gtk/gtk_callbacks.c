@@ -1,6 +1,31 @@
 extern struct _initList gInit;
 extern GtkWidget *mWindow;
 extern WindowDetails cWindowDetails;
+
+/*
+ *@page : Globally Used Callbacks
+ */
+
+//Global exit function
+void gtk_package_exit(GtkWidget *widget, gpointer data)	{
+	package_exit(&gInit);
+	gtk_main_quit();
+}
+
+//Used to close the active window and reload the hidden Window
+void gtk_sub_window_quit()	{
+	//This activates the hidden window and closes the active One.
+	gtk_widget_destroy(mWindow);
+	mWindow = cWindowDetails.activeWindow = cWindowDetails.hiddenWindow;
+	cWindowDetails.hiddenWindow = NULL;
+	gtk_widget_show(mWindow);
+}
+
+void quit_sub_window(GtkWidget *window, gpointer data)	{
+	//This is used to close a pop-up window like feature
+	gtk_widget_destroy(window);
+	gtk_widget_show(mWindow);
+}
 /*
  * @page : Login.c
  */
@@ -128,6 +153,8 @@ void search_item_check(GtkWidget *widget, gpointer data)	{
 			if((IS_CHAR(text[i]) && flag != -1) || (IS_NUM(text[i]) && flag != 1))	{
 				//This is an error as the charecter types dont match.
 				remove_all(entry->list);
+				gtk_widget_set_sensitive(entry->modDataButton, FALSE);
+				gtk_widget_set_sensitive(entry->delDataButton, FALSE);
 				gtk_label_set_text(GTK_LABEL(entry->label), "Error. Not a valid ID or Name.");
 				return;
 			}
@@ -137,6 +164,8 @@ void search_item_check(GtkWidget *widget, gpointer data)	{
 	//Now since the data is clean. We check it using search_db
 	if(gInit.fileItemCount[ch-97] == 0)	{
 		remove_all(entry->list);
+		gtk_widget_set_sensitive(entry->modDataButton, FALSE);
+		gtk_widget_set_sensitive(entry->delDataButton, FALSE);
 		gtk_label_set_text(GTK_LABEL(entry->label), "No items found with that name.");
 		return;
 	}
@@ -153,6 +182,7 @@ void search_item_check(GtkWidget *widget, gpointer data)	{
 }
 
 void search_item_show(GtkWidget *selection, gpointer label)	{
+	//Function is used to get the data from the tree view and display the entire record onto the label area
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	char *value;
@@ -160,36 +190,128 @@ void search_item_show(GtkWidget *selection, gpointer label)	{
 	char dTemp[150];
 	int count;
 	productList temp;
-	value = (char *)malloc(150 * sizeof(char));
+	struct _search_modRecData * mData = label;
+	value = (char *)malloc(30 * sizeof(char));
 	filename = (char *)calloc(10 , sizeof(char));
 	if(gtk_tree_selection_get_selected(GTK_TREE_SELECTION(selection), &model, &iter))	{
 		gtk_tree_model_get(model, &iter, 0, &value, -1);
 		sprintf(filename, "%c_db.txt", tolower(value[0]));
 		search_db(&temp, NULL, value, filename);
-		g_print("%s %s", temp.name, temp.id);
 		strcpy(dTemp, "");
 		sprintf(dTemp, "%s %s\n%s %s\n%s %d\n%s %.2f", "Item Name :", temp.name, "Item ID :", temp.id, "Stock Left :", temp.qty, "Price Per Unit :", temp.price);
-		gtk_label_set_text(GTK_LABEL(label), dTemp);
+		gtk_label_set_text(GTK_LABEL(mData->label), dTemp);
+		gtk_widget_set_sensitive(mData->modDataButton, TRUE);
+		gtk_widget_set_sensitive(mData->delDataButton, TRUE);
 	}
 	free(value);
 	free(filename);
 }
 
-/*
- *@page : Globally Used Callbacks
- */
-
-//Global exit function
-void gtk_package_exit(GtkWidget *widget, gpointer data)	{
-	package_exit(&gInit);
-	gtk_main_quit();
+void search_mod_entry(GtkWidget *widget, gpointer data)	{
+	struct _search_2_modData *oData = data;
+	productList temp;
+	char filename[11];
+	//We copy the details into the temp to use later
+	strcpy(temp.name, gtk_entry_get_text(GTK_ENTRY(oData->nameEntry)));
+	strcpy(temp.id, oData->id);
+	temp.qty = atoi(gtk_entry_get_text(GTK_ENTRY(oData->qtyEntry)));
+	temp.price = atof(gtk_entry_get_text(GTK_ENTRY(oData->priceEntry)));
+	sprintf(filename, "%c%c%c", oData->id[0], oData->id[1],oData->id[2]);
+	sprintf(filename, "%c_db.txt", atoi(filename));
+	mod_entry(temp,oData->id, filename);
 }
 
-//Used to close the active window and reload the hidden Window
-void gtk_sub_window_quit()	{
-	//This activates the hidden window and closes the active One.
-	gtk_widget_destroy(mWindow);
-	mWindow = cWindowDetails.activeWindow = cWindowDetails.hiddenWindow;
-	cWindowDetails.hiddenWindow = NULL;
-	gtk_widget_show(mWindow);
+void search_item_mod(GtkWidget *widget, gpointer data)	{
+	GtkWidget *window;
+	GtkWidget *button;
+	GtkWidget *entry;
+	GtkWidget *vBox, *hBox;
+	GtkWidget *alignment;
+	GtkWidget *label;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	char *value;
+	char *filename;
+	char tempCStr[15];
+	static productList temp;
+	struct _search_modRecData *mData = data;
+	static struct _search_2_modData modData;
+	//Some dyanamic memory
+	value = (char *)malloc(20 * sizeof(char));
+	filename = (char *)calloc(10 , sizeof(char));
+	//We Hide the main window for now.
+	gtk_widget_hide(mWindow);
+	//Now some pre - requisites like the struct with the original data
+	if(gtk_tree_selection_get_selected(GTK_TREE_SELECTION(mData->selection), &model, &iter))	{
+		gtk_tree_model_get(model, &iter, 0, &value, -1);
+		strcpy(filename, "");
+		sprintf(filename, "%c_db.txt", tolower(value[0]));
+		search_db(&temp, NULL, value, filename);
+	}
+	//Now we create a new window above this. Then in a callback we reactivate
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	modData.window = window;
+	gtk_window_set_default_size(GTK_WINDOW(window), 450, 500);
+	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	gtk_window_set_title(GTK_WINDOW(window), "Modify Entry");
+	g_signal_connect(window, "destroy", G_CALLBACK(quit_sub_window), NULL);
+
+	//A new vBox for alignment purposes
+	vBox = gtk_vbox_new(TRUE, 10);
+
+	//Now the three Entries and their labels in a hBox
+	hBox = gtk_hbox_new(FALSE, 10);
+	label = gtk_label_new("Product Name ");
+	gtk_widget_set_size_request(label, 125, 50);
+	gtk_box_pack_start(GTK_BOX(hBox), label, 0, 0, 0);
+	entry = gtk_entry_new();
+	modData.nameEntry = entry;
+	gtk_widget_set_size_request(entry, 150, 50);
+	gtk_entry_set_text(GTK_ENTRY(entry),temp.name);
+	gtk_box_pack_start(GTK_BOX(hBox), entry, 0, 0, 0);
+	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 0);
+
+	//Now for the Quantity
+	hBox = gtk_hbox_new(FALSE, 10);
+	label = gtk_label_new("Product Stock Left ");
+	gtk_widget_set_size_request(label, 125, 50);
+	gtk_box_pack_start(GTK_BOX(hBox), label, 0, 0, 0);
+	entry = gtk_entry_new();
+	modData.qtyEntry = entry;
+	gtk_widget_set_size_request(entry, 150, 50);
+	sprintf(tempCStr, "%d",temp.qty);
+	gtk_entry_set_text(GTK_ENTRY(entry),tempCStr);
+	gtk_box_pack_start(GTK_BOX(hBox), entry, 0, 0, 0);
+	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 0);
+
+	//Now for the Price
+	hBox = gtk_hbox_new(FALSE, 10);
+	label = gtk_label_new("Product Price ");
+	gtk_widget_set_size_request(label, 125, 50);
+	gtk_box_pack_start(GTK_BOX(hBox), label, 0, 0, 0);
+	entry = gtk_entry_new();
+	modData.priceEntry = entry;
+	gtk_widget_set_size_request(entry, 150, 50);
+	sprintf(tempCStr, "%.3f", temp.price);
+	gtk_entry_set_text(GTK_ENTRY(entry),tempCStr);
+	gtk_box_pack_start(GTK_BOX(hBox), entry, 0, 0, 0);
+	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 0);
+
+	//We set the id in the same struct used for the callback function
+	strcpy(modData.id, temp.id);
+	//Now for the submit button
+	button = gtk_button_new_with_label("Submit");
+	gtk_widget_set_size_request(button, 200, 50);
+	g_signal_connect(button, "clicked", G_CALLBACK(search_mod_entry), &modData);
+	gtk_box_pack_start(GTK_BOX(vBox), button, 0, 0, 0);
+
+	//Now for an alignment widget to put everything correctly.
+	alignment = gtk_alignment_new(0.50, 0.50, 0, 0);
+	gtk_container_add(GTK_CONTAINER(alignment), vBox);
+	gtk_container_add(GTK_CONTAINER(window), alignment);
+	gtk_widget_show_all(window);
+}
+
+void search_item_del(GtkWidget *button, gpointer data)	{
+
 }

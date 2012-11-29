@@ -12,12 +12,13 @@ int gtk_search_page()	{
 	GtkWidget *entry;
 	GtkWidget *button;
 	GtkWidget *align;
-	GtkWidget *vBox;
+	GtkWidget *vBox, *hBox;
 	GtkWidget *temp;
 	GtkWidget *scrollWindow;
 	static GtkWidget *list;
 	GtkTreeSelection *selection;
 	static struct _search_entryData data;
+	static struct _search_modRecData mRecData;
 
 	//We set up the main window
 	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -36,12 +37,10 @@ int gtk_search_page()	{
 
 	entry = gtk_entry_new();
 	data.entry = entry;
+	mRecData.entry = entry;
 	gtk_widget_set_size_request(entry, 150, 30);
 	gtk_box_pack_start(GTK_BOX(temp), entry, 0 , 0 , 0);
 	gtk_box_pack_start(GTK_BOX(vBox), temp, 0, 0 ,0);
-
-	button = gtk_button_new_with_label("Submit");
-	gtk_box_pack_start(GTK_BOX(vBox), button, 0, 0,0);
 
 	//We set up the scrolled window to help make the lists window scrollable.
 	scrollWindow = gtk_scrolled_window_new(NULL, NULL);
@@ -56,14 +55,36 @@ int gtk_search_page()	{
 	init_list(list);
 	gtk_widget_set_size_request(list, 100, 150);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	mRecData.selection = selection;
 	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 
 	label = gtk_label_new("Message Box.");
 	data.label = label;
+	mRecData.label = label;
 	gtk_widget_set_size_request(label, 200, 300);
 	gtk_box_pack_start(GTK_BOX(vBox), label, 0, 0, 0);
-	g_signal_connect(G_OBJECT(selection), "changed", G_CALLBACK(search_item_show), label);
 
+	//Now we add the delete and mod item buttons
+	hBox = gtk_hbox_new(TRUE, 10);
+	button = gtk_button_new_with_label("Mod Item Details");
+	mRecData.modDataButton = button;
+	data.modDataButton = button;
+	gtk_widget_set_size_request(button, 150, 30);
+	gtk_widget_set_sensitive(button, FALSE);
+	gtk_box_pack_start(GTK_BOX(hBox), button, 0, 0, 0);
+	g_signal_connect(button, "clicked", G_CALLBACK(search_item_mod), &mRecData);
+
+	button = gtk_button_new_with_label("Delete Item");
+	mRecData.delDataButton = button;
+	data.delDataButton = button;
+	gtk_widget_set_size_request(button, 150, 30);
+	gtk_widget_set_sensitive(button, FALSE);
+	gtk_box_pack_start(GTK_BOX(hBox), button, 0, 0, 0);
+	g_signal_connect(button, "clicked", G_CALLBACK(search_item_del), &mRecData);
+	g_signal_connect(G_OBJECT(selection), "changed", G_CALLBACK(search_item_show), &mRecData);
+
+	//we add the hBox to the vBox and then to the mWindow
+	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 0);
 	align = gtk_alignment_new(0.50, 0.50, 0, 0);
 	gtk_container_add(GTK_CONTAINER(align), vBox);
 	gtk_container_add(GTK_CONTAINER(mWindow), align);

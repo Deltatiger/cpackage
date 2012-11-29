@@ -29,10 +29,21 @@ struct _search_entryData	{
 	GtkWidget *entry;
 	GtkWidget *label;
 	GtkWidget *list;
+	GtkWidget *modDataButton , *delDataButton;
 };
 
-struct _search_selectData	{
-	GtkTreeSelection *selection;
+struct _search_modRecData	{
+	GtkWidget *entry;
 	GtkWidget *label;
+	GtkTreeSelection *selection;
+	GtkWidget *modDataButton , *delDataButton;
+};
+
+struct _search_2_modData	{
+	GtkWidget *window;
+	GtkWidget *nameEntry;
+	GtkWidget *qtyEntry;
+	GtkWidget *priceEntry;
+	char id[11];
 };
 
