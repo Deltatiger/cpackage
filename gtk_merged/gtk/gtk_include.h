@@ -7,5 +7,9 @@
 #include "login.c"
 //Then we include the main gtk method.
 #include "main_gtk.c"
-//We include the other files
+//new item page
 #include "newitem.c"
+//Search Page
+#include "search.c"
+//New bill page
+//#include "newbill.c"

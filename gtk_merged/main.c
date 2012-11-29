@@ -2,7 +2,6 @@
 
 GtkWidget *mWindow;
 WindowDetails cWindowDetails;
-int loginStat = 0;
 
 int main(int argc, char *argv[])	{
 	gtk_init(&argc, &argv);

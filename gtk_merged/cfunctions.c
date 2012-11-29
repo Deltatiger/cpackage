@@ -31,4 +31,5 @@ void package_exit(struct _initList *init)	{
 	for(i =0; i< 26; i++)	{
 		fprintf(fp, "%d|", init->fileItemCount[i]);
 	}
+	fclose(fp);
 }

@@ -3,7 +3,9 @@ void get_from_db(productList *t, int *count, const char *fileName)	{
 	FILE *fp;
 	int i =0 , j = 0 ,k = 0;
 	char temp[50], ch;
-	fp = fopen(fileName, "r");
+	char filePath[12] = {"db/"};
+	strcat(filePath, fileName);
+	fp = fopen(filePath, "r");
 	ch = getc(fp);	
 	while(ch != EOF)	{
 		if(ch != '#')	{
@@ -43,7 +45,9 @@ void db_write(productList *t, int count, const char *fileName)	{
 	char temp[125];
 	FILE *fp;
 	int i = 0, j = 0;
-	fp = fopen(fileName, (count == -1 ? "a" : "w"));
+	char filePath[12] = {"db/"};
+	strcat(filePath, fileName);
+	fp = fopen(filePath, (count == -1 ? "a" : "w"));
 	if(count == -1)	{
 		//Append data to the Filename file
 		sprintf(temp, "%s|%s|%d|%f#\n", t->id, t->name, t->qty, t->price);
@@ -118,7 +122,10 @@ void mod_entry(productList newDetails, const char *replaceNameId, const char *fi
 void search_db(productList *listOfEntries, int * const count, const char *nameId, const char *fileName)	{
 	productList temp[100];
 	int tempCount = 0, i = 0, j = 0, type;
-	*count = 0;
+	//This is a precaution for when searching for a single exact value
+	if(count != NULL)	{
+		*count = 0;
+	}
 	get_from_db(temp, &tempCount, fileName);
 	type = IS_NUM(nameId[0]);
 	for(i = 0; i < tempCount; i++)	{
@@ -128,9 +135,15 @@ void search_db(productList *listOfEntries, int * const count, const char *nameId
 			}
 		} else {
 			if(strstr(temp[i].name, nameId) != NULL)	{
-				listOfEntries[j++] = temp[i];	
+				listOfEntries[j++] = temp[i];
 			}
 		}
+	}
+	if(count != NULL)	{
+		*count = j;
+	}
+	if(j == 0)	{
+		listOfEntries = NULL;
 	}
 }
 

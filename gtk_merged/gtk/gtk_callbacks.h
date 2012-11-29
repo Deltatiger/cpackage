@@ -12,7 +12,10 @@
 	static void new_item(GtkWidget *widget, struct _mainGtk_labelData *data);
 	static void config(GtkWidget *widget, struct _mainGtk_labelData *data);
 	//New item callbacks
-	static void new_item_entry(GtkWidget *widget, struct _newItem_entryIds *ent);
+	static void new_item_entry(GtkWidget *widget, gpointer data);
+	//Search Item Callbacks
+	static void add_to_list(GtkWidget *list, const gchar *str);
+	void search_item_check(GtkWidget *widget, gpointer data);
 	//General Callbacks
 	static void exit_event(GtkWidget *widget);
 	#include "gtk_callbacks.c"

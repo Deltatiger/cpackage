@@ -21,5 +21,18 @@ struct _newItem_entryIds	{
 	GtkWidget *entry1;
 	GtkWidget *entry2;
 	GtkWidget *entry3;
+	GtkWidget *messageLabel;
+};
+
+//search.c Structs
+struct _search_entryData	{
+	GtkWidget *entry;
+	GtkWidget *label;
+	GtkWidget *list;
+};
+
+struct _search_selectData	{
+	GtkTreeSelection *selection;
+	GtkWidget *label;
 };
 

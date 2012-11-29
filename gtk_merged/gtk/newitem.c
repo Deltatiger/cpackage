@@ -6,7 +6,7 @@ int gtk_newitem_page()	{
 	GtkWidget *label;
 	GtkWidget *alignment;
 	GtkWidget *button;
-	struct _newItem_entryIds entries;
+	static struct _newItem_entryIds entries;
 
 	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mWindow), "New Item");
@@ -48,10 +48,14 @@ int gtk_newitem_page()	{
 
 	entry = gtk_entry_new();
 	entries.entry3 = entry;
-	g_print("%p", entry);
 	gtk_widget_set_size_request(entry, 140, 30);
 	gtk_box_pack_start(GTK_BOX(hBox), entry, 0, 0, 0);
 	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 5);
+	//A Small label for displaying some messages
+	label = gtk_label_new(NULL);
+	entries.messageLabel = label;
+	gtk_widget_set_size_request(label, 250, 100);
+	gtk_box_pack_start(GTK_BOX(vBox), label, 0, 0 ,0);
 	//And now for the button
 	button = gtk_button_new_with_label("Done");
 	gtk_widget_set_size_request(button, 130, 30);
