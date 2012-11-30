@@ -47,3 +47,14 @@ struct _search_2_modData	{
 	char id[11];
 };
 
+//Newbill.c
+struct _newbill_select_data	{
+	GtkWidget *nameEntry;
+	GtkWidget *qtyEntry;
+	GtkWidget *billList;
+	GtkWidget *sugList;
+	GtkTreeSelection *selection;
+	productList *bList[50];
+	int productCount;
+};
+

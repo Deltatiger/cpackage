@@ -40,6 +40,7 @@ char * get_new_product_id(char * const p)	{
 	int fIdPart = tolower(p[0]) + 4;
 	strcpy(id, "");
 	sprintf(id, "%d%d%d%d", fIdPart/100, (fIdPart%100)/10, fIdPart%10,gInit.lItemNumber++);
+	g_print("\nNew ID Requested : %s\n", id);
 	return id;
 }
 

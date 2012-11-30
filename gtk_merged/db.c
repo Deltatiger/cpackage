@@ -106,7 +106,6 @@ void mod_entry(productList newDetails, const char *replaceNameId, const char *fi
 	char tFileName[11];
 	//We delete the old one.
 	strcpy(tFileName, "");
-	g_print("%s", replaceNameId);
 	if(IS_NUM(replaceNameId[0]))	{
 		sprintf(tFileName, "%c%c%c", replaceNameId[0],replaceNameId[1],replaceNameId[2]);
 		sprintf(tFileName, "%c_db.txt", atoi(tFileName)-4);
@@ -117,25 +116,37 @@ void mod_entry(productList newDetails, const char *replaceNameId, const char *fi
 	}
 	//Now that the old one is gone. We add a new one
 	strcpy(newDetails.id, get_new_product_id(newDetails.name));
+	g_print("\n%s", newDetails.id);
+	if(strcmp(fileName, tFileName) != 0)	{
+		gInit.fileItemCount[tolower(tFileName[0])-97]--;
+		gInit.fileItemCount[tolower(fileName[0])-97]++;
+	}
 	db_write(&newDetails, -1, fileName);
 }
 
 void search_db(productList *listOfEntries, int * const count, const char *nameId, const char *fileName)	{
 	productList temp[100];
 	int tempCount = 0, i = 0, j = 0, type;
+	int strLen;
+	char temp1[20], temp2[20];
 	//This is a precaution for when searching for a single exact value
 	if(count != NULL)	{
 		*count = 0;
 	}
 	get_from_db(temp, &tempCount, fileName);
+	strLen = strlen(nameId);
 	type = IS_NUM(nameId[0]);
+	strcpy(temp2, nameId);
+	strlwr(temp2);
 	for(i = 0; i < tempCount; i++)	{
 		if(type == 1)	{
-			if(strstr(temp[i].id, nameId) != NULL)	{
+			if(strncmp( temp[i].id, temp2, strLen) == 0)	{
 				listOfEntries[j++] = temp[i];
 			}
 		} else {
-			if(strstr(&temp[i].name[0], &nameId[0]) != NULL)	{
+			strcpy(temp1, temp[i].name);
+			strlwr(temp1);
+			if(strncmp( temp1, temp2, strLen) == 0)	{
 				listOfEntries[j++] = temp[i];
 			}
 		}

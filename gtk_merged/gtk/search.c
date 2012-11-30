@@ -5,7 +5,7 @@ enum	{
 	N_COLUMNS
 };
 
-static void init_list(GtkWidget *list);
+static void search_init_list(GtkWidget *list);
 
 int gtk_search_page()	{
 	static GtkWidget *label;
@@ -52,7 +52,7 @@ int gtk_search_page()	{
 	gtk_container_add(GTK_CONTAINER(scrollWindow), list);
 	gtk_box_pack_start(GTK_BOX(vBox), scrollWindow, 0, 0 , 0);
 
-	init_list(list);
+	search_init_list(list);
 	gtk_widget_set_size_request(list, 100, 150);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
 	mRecData.selection = selection;
@@ -97,7 +97,7 @@ int gtk_search_page()	{
 	return 0;
 }
 
-static void init_list(GtkWidget *list)	{
+static void search_init_list(GtkWidget *list)	{
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *column;
 	GtkListStore *store;

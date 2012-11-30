@@ -5,7 +5,6 @@ extern WindowDetails cWindowDetails;
 /*
  *@page : Globally Used Callbacks
  */
-
 //Global exit function
 void gtk_package_exit(GtkWidget *widget, gpointer data)	{
 	package_exit(&gInit);
@@ -50,7 +49,10 @@ static void login_user(GtkWidget *widget,struct _login_myEntries *entry)	{
  * @desc : Every function here just hides the mWindow and creates a new window
  */
 static void new_bill(GtkWidget *widget, struct _mainGtk_labelData *data)	{
-	g_print("New Bill Is Called.\n");
+	cWindowDetails.hiddenWindow = mWindow;
+	gtk_widget_hide(mWindow);
+	gtk_newbill_page();
+	cWindowDetails.activeWindow = mWindow;
 }
 static void show_inv(GtkWidget *widget, struct _mainGtk_labelData *data)	{
 	g_print("Show Inventory is Called.\n");
@@ -76,7 +78,7 @@ static void config(GtkWidget *widget, struct _mainGtk_labelData *data)	{
 static void new_item_entry(GtkWidget *widget, gpointer data)	{
 	const gchar *iName, *iPrice, *iQty;
 	struct _newItem_entryIds *entry = data;
-	productList *list;
+	productList list[100];
 	int count;
 	char tempFilename[9];
 	char tempPId[11];
@@ -87,18 +89,17 @@ static void new_item_entry(GtkWidget *widget, gpointer data)	{
 		gtk_label_set_text(GTK_LABEL(entry->messageLabel), "Not Enough Details.");
 		return;
 	}
-	list = malloc(gInit.fileItemCount[iName[0]-101]*sizeof(productList));
 	//We first check if there is one with the same name already present in the DB
 	sprintf(tempFilename, "%c_db.txt", tolower(iName[0]));
 	search_db(list, &count, iName, tempFilename);
 	if(count == 0)	{
-		sprintf(tempPId, "%d%d", tolower(iName[0] + 4), gInit.lItemNumber++);
+		strcpy(tempPId,get_new_product_id((char *const)iName));
 		strcpy(list[0].name, iName);
 		strcpy(list[0].id, tempPId);
 		list[0].qty = atoi(iQty);
 		list[0].price = atof(iPrice);
+		gInit.fileItemCount[tolower(iName[0])-97]++;
 		db_write(list, -1, tempFilename);
-		free(list);
 		gtk_label_set_text(GTK_LABEL(entry->messageLabel), "Item Added to the Database.");
 	} else {
 		gtk_label_set_text(GTK_LABEL(entry->messageLabel), "Item Already Exists.");
@@ -138,7 +139,7 @@ void search_item_check(GtkWidget *widget, gpointer data)	{
 	static lCharCount = 0;
 	const gchar *text;
 	int flag = 0,i;
-	struct _search_entryData * entry = data; 
+	struct _search_entryData *entry = data; 
 	productList temp[100];
 	char filename[9], ch;
 	text = gtk_entry_get_text(GTK_ENTRY(entry->entry));
@@ -216,8 +217,8 @@ void search_mod_entry(GtkWidget *widget, gpointer data)	{
 	strcpy(temp.id, oData->id);
 	temp.qty = atoi(gtk_entry_get_text(GTK_ENTRY(oData->qtyEntry)));
 	temp.price = atof(gtk_entry_get_text(GTK_ENTRY(oData->priceEntry)));
-	sprintf(filename, "%c%c%c", oData->id[0], oData->id[1],oData->id[2]);
-	sprintf(filename, "%c_db.txt", atoi(filename)-4);
+	sprintf(filename, "%c_db.txt", temp.name[0]);
+	//We send the file name of the old data
 	mod_entry(temp,oData->id, filename);
 }
 
@@ -304,7 +305,6 @@ void search_item_mod(GtkWidget *widget, gpointer data)	{
 	gtk_widget_set_size_request(button, 200, 50);
 	g_signal_connect(button, "clicked", G_CALLBACK(search_mod_entry), &modData);
 	gtk_box_pack_start(GTK_BOX(vBox), button, 0, 0, 0);
-
 	//Now for an alignment widget to put everything correctly.
 	alignment = gtk_alignment_new(0.50, 0.50, 0, 0);
 	gtk_container_add(GTK_CONTAINER(alignment), vBox);
@@ -313,5 +313,59 @@ void search_item_mod(GtkWidget *widget, gpointer data)	{
 }
 
 void search_item_del(GtkWidget *button, gpointer data)	{
+
+}
+
+/*
+ * @page : newbill.c
+ */
+
+void newbill_entry_changed(GtkWidget *widget, gpointer data)	{
+	static lCharCount = 0;
+	const gchar *text;
+	int flag = 0,i;
+	struct _newbill_select_data * eData = data; 
+	productList temp[100];
+	char filename[9], ch;
+	text = gtk_entry_get_text(GTK_ENTRY(eData->nameEntry));
+	if(strlen(text) < 1)	{
+		return;
+	}
+	for(i= 0; text[i] != '\0'; i++)	{
+		if(i == 0)	{
+			if(IS_CHAR(text[i]))	{
+				flag = -1;
+			} else if(IS_NUM(text[i]))	{
+				flag = 1;
+			}
+		} else {
+			if((IS_CHAR(text[i]) && flag != -1) || (IS_NUM(text[i]) && flag != 1))	{
+				//This is an error as the charecter types dont match.
+				remove_all(eData->sugList);
+				return;
+			}
+		}
+	}
+	ch = tolower(text[0]);
+	//Now since the data is clean. We check it using search_db
+	if(gInit.fileItemCount[ch-97] == 0)	{
+		remove_all(eData->sugList);
+		return;
+	}
+	sprintf(filename, "%c_db.txt", tolower(text[0]));
+	search_db(temp, &flag, text, filename);
+	if(flag > 0)	{
+		remove_all(eData->sugList);
+		for(i = 0 ; i < flag; i++)	{
+			add_to_list(eData->sugList, temp[i].name);
+		}
+	}
+}
+
+void newbill_entry_add(GtkWidget *widget, gpointer data)	{
+
+}
+
+void newbill_done(GtkWidget *widget, gpointer data)	{
 
 }

@@ -12,4 +12,4 @@
 //Search Page
 #include "search.c"
 //New bill page
-//#include "newbill.c"
+#include "newbill.c"
