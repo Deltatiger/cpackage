@@ -37,8 +37,19 @@ void package_exit(struct _initList *init)	{
 char * get_new_product_id(char * const p)	{
 	//This generates the 10 digit long code.
 	static char id[11];
-	int fIdPart = p[0] + 4;
-	sprintf(id, "%d%d%d", fIdPart/100, (fIdPart%100)/10, fIdPart%10/*,gInit.lItemNumber*/);
-	g_print("Fails Here");
+	int fIdPart = tolower(p[0]) + 4;
+	strcpy(id, "");
+	sprintf(id, "%d%d%d%d", fIdPart/100, (fIdPart%100)/10, fIdPart%10,gInit.lItemNumber++);
 	return id;
+}
+
+char * strtolower(const char * p)	{
+	int i = 0;
+	char *t;
+	t = (char *)p;
+	while(*t != '\0')	{
+		*t = tolower(*t);
+		t++;
+	}
+	return t;
 }

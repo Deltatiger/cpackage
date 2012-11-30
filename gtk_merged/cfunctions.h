@@ -1,3 +1,8 @@
+#ifndef _string
+	#define _string
+	#include <string.h>
+#endif
+
 #ifndef _cfunctions
  	#define _cfunctions
  	unsigned long int hash(unsigned char *str);

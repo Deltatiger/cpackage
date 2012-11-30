@@ -217,7 +217,7 @@ void search_mod_entry(GtkWidget *widget, gpointer data)	{
 	temp.qty = atoi(gtk_entry_get_text(GTK_ENTRY(oData->qtyEntry)));
 	temp.price = atof(gtk_entry_get_text(GTK_ENTRY(oData->priceEntry)));
 	sprintf(filename, "%c%c%c", oData->id[0], oData->id[1],oData->id[2]);
-	sprintf(filename, "%c_db.txt", atoi(filename));
+	sprintf(filename, "%c_db.txt", atoi(filename)-4);
 	mod_entry(temp,oData->id, filename);
 }
 
