@@ -53,8 +53,9 @@ struct _newbill_select_data	{
 	GtkWidget *qtyEntry;
 	GtkWidget *billList;
 	GtkWidget *sugList;
+	GtkWidget *label;
 	GtkTreeSelection *selection;
-	productList *bList[50];
+	productList bList[50];
 	int productCount;
 };
 

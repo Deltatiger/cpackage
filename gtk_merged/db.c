@@ -38,23 +38,23 @@ void get_from_db(productList *t, int *count, const char *fileName)	{
 		ch = getc(fp);
 	}
 	*count = i;
+	g_print("\nReading %d items.", *count);
 }
 
 void db_write(productList *t, int count, const char *fileName)	{
 	//This functions writes/rewirtes the structures to the datafile
-	char temp[125];
+	char temp[150];
 	FILE *fp;
 	int i = 0, j = 0;
 	char filePath[12] = {"db/"};
 	strcat(filePath, fileName);
-	fp = fopen(filePath, (count == -1 ? "a" : "w"));
+	fp = fopen(filePath, (count == -1 ? "a+" : "w"));
 	if(count == -1)	{
 		//Append data to the Filename file
 		sprintf(temp, "%s|%s|%d|%f#\n", t->id, t->name, t->qty, t->price);
 		while(temp[i] != '\0')	{
 			fputc(temp[i++], fp);
 		}
-		fclose(fp);
 	}else {
 		//Deletes the file and rewrites the data
 		while(i < count)	{
@@ -71,11 +71,13 @@ void db_write(productList *t, int count, const char *fileName)	{
 			i++;
 		}
 	}
+	fclose(fp);
+	g_print("\nWriting %d items.", count);
 }
 
 void remove_entry(const char *nameId, const char *fileName)	{
 	//This removes the entry and then puts it back into the file.
-	productList temp[1000];
+	productList temp[150];
 	int count, i, type;
 	get_from_db(temp, &count, fileName);
 	type = IS_NUM(nameId[0]);
@@ -99,8 +101,9 @@ void remove_entry(const char *nameId, const char *fileName)	{
 		}
 	}
 	db_write(temp, count, fileName);
+	g_print("\nRemoving 1 entry from %d items.", count);
 }
-void mod_entry(productList newDetails, const char *replaceNameId, const char *fileName)	{
+void mod_entry(productList newDetails, const char *replaceNameId, const char *fileName, int changeId)	{
 	//Here the product name may have changed. So we open up the old one with the id or name and delete it. Then we write it anew where ever we need. But with the same id
 	int count, i, type;
 	char tFileName[11];
@@ -115,8 +118,9 @@ void mod_entry(productList newDetails, const char *replaceNameId, const char *fi
 		remove_entry(replaceNameId, tFileName);
 	}
 	//Now that the old one is gone. We add a new one
-	strcpy(newDetails.id, get_new_product_id(newDetails.name));
-	g_print("\n%s", newDetails.id);
+	if(changeId == 1)	{
+		strcpy(newDetails.id, get_new_product_id(newDetails.name));
+	}
 	if(strcmp(fileName, tFileName) != 0)	{
 		gInit.fileItemCount[tolower(tFileName[0])-97]--;
 		gInit.fileItemCount[tolower(fileName[0])-97]++;
@@ -155,7 +159,8 @@ void search_db(productList *listOfEntries, int * const count, const char *nameId
 		*count = j;
 	}
 	if(j == 0)	{
-		listOfEntries = NULL;
+		//Error message to indicate that no entry was found of that name
+		listOfEntries[0].name[0] = '\0';
 	}
 }
 

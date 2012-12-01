@@ -3,6 +3,8 @@
 	#include <string.h>
 #endif
 
+#include <stdio.h>
+
 #ifndef _cfunctions
  	#define _cfunctions
  	unsigned long int hash(unsigned char *str);

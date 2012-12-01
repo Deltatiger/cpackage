@@ -12,7 +12,13 @@ void gtk_package_exit(GtkWidget *widget, gpointer data)	{
 }
 
 //Used to close the active window and reload the hidden Window
-void gtk_sub_window_quit()	{
+void gtk_sub_window_quit(GtkWidget *window, gpointer data)	{
+	//If data is not null then we have to disconnect the destroy signal handler from the mWindow first
+	int *delId;
+	if(data != NULL)	{
+		delId = data;
+		g_signal_handler_disconnect(mWindow, *delId);
+	}
 	//This activates the hidden window and closes the active One.
 	gtk_widget_destroy(mWindow);
 	mWindow = cWindowDetails.activeWindow = cWindowDetails.hiddenWindow;
@@ -209,6 +215,7 @@ void search_item_show(GtkWidget *selection, gpointer label)	{
 }
 
 void search_mod_entry(GtkWidget *widget, gpointer data)	{
+	//Callback from the below function 
 	struct _search_2_modData *oData = data;
 	productList temp;
 	char filename[11];
@@ -219,7 +226,10 @@ void search_mod_entry(GtkWidget *widget, gpointer data)	{
 	temp.price = atof(gtk_entry_get_text(GTK_ENTRY(oData->priceEntry)));
 	sprintf(filename, "%c_db.txt", temp.name[0]);
 	//We send the file name of the old data
-	mod_entry(temp,oData->id, filename);
+	mod_entry(temp,oData->id, filename, 1);
+	//Now that the entry is made we close the window and set the entry in search.c to none
+	gtk_widget_destroy(oData->window);
+	gtk_widget_show(mWindow);
 }
 
 void search_item_mod(GtkWidget *widget, gpointer data)	{
@@ -313,15 +323,24 @@ void search_item_mod(GtkWidget *widget, gpointer data)	{
 }
 
 void search_item_del(GtkWidget *button, gpointer data)	{
-
+	//This deletes the entry from the list
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	struct _search_modRecData *oData = data;
+	char temp[9], *value;
+	gtk_tree_selection_get_selected(GTK_TREE_SELECTION(oData->selection), &model, &iter);
+	gtk_tree_model_get(model, &iter, 0, &value, -1);
+	strcpy(temp, "");
+	sprintf(temp, "%c_db.txt", tolower(value[0]));
+	remove_entry(value, temp);
+	//Now that the delete is done we set the entry to nothing
+	gtk_entry_set_text(GTK_ENTRY(oData->entry), "");
 }
 
 /*
  * @page : newbill.c
  */
-
 void newbill_entry_changed(GtkWidget *widget, gpointer data)	{
-	static lCharCount = 0;
 	const gchar *text;
 	int flag = 0,i;
 	struct _newbill_select_data * eData = data; 
@@ -329,6 +348,7 @@ void newbill_entry_changed(GtkWidget *widget, gpointer data)	{
 	char filename[9], ch;
 	text = gtk_entry_get_text(GTK_ENTRY(eData->nameEntry));
 	if(strlen(text) < 1)	{
+		remove_all(eData->sugList);
 		return;
 	}
 	for(i= 0; text[i] != '\0'; i++)	{
@@ -357,15 +377,156 @@ void newbill_entry_changed(GtkWidget *widget, gpointer data)	{
 	if(flag > 0)	{
 		remove_all(eData->sugList);
 		for(i = 0 ; i < flag; i++)	{
+			if(temp[i].qty <= 0)	{
+				continue;
+			}
 			add_to_list(eData->sugList, temp[i].name);
 		}
 	}
 }
 
-void newbill_entry_add(GtkWidget *widget, gpointer data)	{
+void newbill_entry_add(GtkTreeView *treeView, GtkTreePath *path, GtkTreeViewColumn *column ,gpointer data)	{
+	//@desc : This is used to add an entry to the text box entry for easy use
+	//This is executed on a double click on the selection of list1
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	char * value;
+	struct _newbill_select_data * fData = data;
+	//We first get the selection and extract the data
+	selection = gtk_tree_view_get_selection(treeView);
+	if(gtk_tree_selection_get_selected(GTK_TREE_SELECTION(selection), &model, &iter))	{
+		gtk_tree_model_get(model, &iter, 0, &value, -1);
+		gtk_entry_set_text(GTK_ENTRY(fData->nameEntry), value);
+	}
+}
 
+void add_item_to_billList(GtkWidget *list, productList *product, int qty, int itemCount)	{
+	//This adds the productList to the list
+	GtkListStore *store;
+	GtkTreeIter iter;
+	char *str;
+
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set(store, &iter, 0, itemCount+1, 1, product->id, 2 , product->name, 3 , qty, 4, qty*product->price,-1);
+}
+
+void newbill_add_item(GtkEntry *entry, gpointer data)	{
+	//Now we have the product and the qty. We add the item to the billing list
+	struct _newbill_select_data *oData = data;
+	productList temp;
+	char fileName[7];
+	char pName[25];
+	char buff[75];
+	int count, i;
+	int bItemCount = 0;
+	float tCost = 0;
+	strcpy(pName, gtk_entry_get_text(GTK_ENTRY(oData->nameEntry)));
+	sprintf(fileName, "%c_db.txt", pName[0]);
+	search_db(&temp, &count, (const char *)pName, (const char *)fileName);
+	if(temp.name[0] == '\0' || temp.qty <= 0)	{
+		return;
+	}
+	count = atoi(gtk_entry_get_text(GTK_ENTRY(oData->qtyEntry)));
+	if(temp.qty < count)	{
+		return;
+	}
+	temp.qty = count;
+	add_item_to_billList(oData->billList, &temp, count, oData->productCount++);
+	oData->bList[oData->productCount-1] = temp;
+	for(i = 0; i < oData->productCount; i++)	{
+		bItemCount += oData->bList[i].qty;
+		tCost += oData->bList[i].qty * oData->bList[i].price;
+	}
+	sprintf(buff, "Total Items Count : %d\nTotal cost of Items : %.2f", bItemCount, tCost);
+	gtk_label_set_text(GTK_LABEL(oData->label), buff);
+	gtk_entry_set_text(GTK_ENTRY(oData->nameEntry), "");
+	gtk_entry_set_text(GTK_ENTRY(oData->qtyEntry), "");
 }
 
 void newbill_done(GtkWidget *widget, gpointer data)	{
+	//We show them the total amount and total no of items in a popup
+	struct _newbill_select_data *oData = data;
+	int i, iTemp;
+	FILE *fp;
+	char temp[15];
+	productList pLTemp;
+	//We check if there is file with the current bill number
+	sprintf(temp, "db/bill/%d.dat", gInit.lBillNumber++);
+	fp = fopen(temp, "r");
+	if(fp != NULL)	{
+		//WE just increement the bill number for now.
+		gInit.lBillNumber++;
+		sprintf(temp, "db/bill/%d.dat", gInit.lBillNumber++);
+		fclose(fp);
+		fp = fopen(temp, "w");
+	} else {
+		fclose(fp);
+		fp = fopen(temp, "w");
+	}
+	fprintf(fp, "%d|%d\n", gInit.lBillNumber-1, oData->productCount);
+	for(i = 0 ; i < oData->productCount; i++)	{
+		//First we make the required changes in the db files.
+		sprintf(temp, "%c_db.txt", tolower(oData->bList[i].name[0]));
+		search_db(&pLTemp, &iTemp, oData->bList[i].name, temp);
+		pLTemp.qty -= oData->bList[i].qty;
+		//This is for adding a low stock warning
+		if(pLTemp.qty <= QTY_LOW_WARN)	{
+			g_print("\nAdding low stock warning...");
+			add_low_stock_warning(pLTemp);
+		}
+		mod_entry(pLTemp, oData->bList[i].name, temp, 0);
+		fprintf(fp, "#%s|%s|%d|%f#\n", oData->bList[i].id, oData->bList[i].name, oData->bList[i].qty, oData->bList[i].price);
+	}
+	fclose(fp);
+	//Now we reset all the data 
+	gtk_label_set_text(GTK_LABEL(oData->label), "");
+	gtk_entry_set_text(GTK_ENTRY(oData->nameEntry), "");
+	gtk_entry_set_text(GTK_ENTRY(oData->qtyEntry), "");
+	remove_all(oData->billList);
+}
 
+void main_gtk_set_statistics(GtkWidget *list)	{
+	//we update the staticstics window
+	FILE *fp;
+	int totalItem = 0, i;
+	char totalCost[15];
+	char temp[50];
+	remove_all(list);
+	for(i = 0; i < 26; i++)	{
+		totalItem += gInit.fileItemCount[i];
+	}
+	sprintf(temp, "Last Bill Number : %d", gInit.lBillNumber);
+	add_to_list(list, temp);
+	sprintf(temp, "Total Items      : %d", totalItem);
+	add_to_list(list, temp);
+}
+
+void main_gtk_set_lowstock(GtkWidget *list)	{
+	//We update the low stock window
+	FILE *fp;
+	int count, i;
+	char temp[25], filename[10];
+	productList pTemp;
+	remove_all(list);
+	//We open the file and get the details and add it to the list
+	fp = fopen("../db/lowstock.txt", "r");
+	fscanf(fp, "$ %d $\n", &count);
+	g_print("\n Count is : %d", count);
+	if(count == 0)	{
+		add_to_list(list, "Well Stocked Inventory");
+	}
+	for(i = 0; i < count; i++)	{
+		fscanf(fp, "# %s #\n", temp);
+		sprintf(filename, "%c%c%c", temp[0], temp[1], temp[2]);
+		sprintf(filename, "%c_db.txt", atoi(filename)-4);
+		search_db(&pTemp, NULL, temp, filename);
+		if(pTemp.name[0] == '\0' )	{
+			continue;
+		}
+		add_to_list(list, pTemp.name);
+	}
+	fclose(fp);
 }

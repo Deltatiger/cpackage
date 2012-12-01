@@ -54,3 +54,34 @@ char * strtolower(const char * p)	{
 	}
 	return t;
 }
+
+void add_low_stock_warning(productList data)	{
+	//Now we check if it already exists in the lowstock file
+	FILE *fp;
+	char temp[15];
+	char oData[30][15];
+	int count, i, flag = 0, flagId = 0;
+	fp = fopen("db/lowstock.txt", "a+");
+	fscanf(fp, "%d$", &count);
+	if(count > 0)	{
+		for(i = 0; i < count; i++)	{
+			fscanf(fp, "%s#", temp);
+			if(strcmp(temp, data.id) == 0)	{
+				flag = 1;
+				flagId = i;
+			}
+			strcpy(oData[i], temp);
+		}
+	}
+	if(flag == 0)	{
+		fclose(fp);
+		//New one detected
+		fp = fopen("db/lowstock.txt", "w");
+		fprintf(fp, "%d$\n", count+1);
+		for(i = 0; i < count; i++)	{
+			fprintf(fp, "%s#\n", oData[i]);
+		}
+		fprintf(fp, "#%s#\n", data.id);
+	}
+	fclose(fp);
+}

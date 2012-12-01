@@ -8,14 +8,14 @@ enum	{
 static void search_init_list(GtkWidget *list);
 
 int gtk_search_page()	{
-	static GtkWidget *label;
+	GtkWidget *label;
 	GtkWidget *entry;
 	GtkWidget *button;
 	GtkWidget *align;
 	GtkWidget *vBox, *hBox;
 	GtkWidget *temp;
 	GtkWidget *scrollWindow;
-	static GtkWidget *list;
+	GtkWidget *list;
 	GtkTreeSelection *selection;
 	static struct _search_entryData data;
 	static struct _search_modRecData mRecData;

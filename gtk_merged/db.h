@@ -18,7 +18,7 @@
  	void get_from_db(productList *t, int *count, const char *fileName);
  	void db_write(productList *t, int count, const char *fileName);
  	void remove_entry(const char *nameId, const char *fileName);
- 	void mod_entry(productList newDetails, const char *replaceNameId, const char *fileName);
+ 	void mod_entry(productList newDetails, const char *replaceNameId, const char *fileName, int changeId);
  	void search_db(productList *listOfEntries, int *const count, const char *nameId,const char *fileName);
  	char * read_entire_file(const char * fileName);
 	#include "db.c"

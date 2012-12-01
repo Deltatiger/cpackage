@@ -6,7 +6,7 @@ void login_screen()	{
 	GtkWidget *vbox, *hBox;
 	GtkWidget *valign;
 	GtkWidget *button;
-	struct _login_myEntries ent;
+	static struct _login_myEntries ent;
 	//We Set up the initial window which acts as the main window
 	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mWindow), "Login");
