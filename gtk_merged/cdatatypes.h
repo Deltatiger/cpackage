@@ -9,14 +9,6 @@ typedef struct _productList
 	float price;
 } productList;
 
-typedef struct _sProduct
-{
-	/* This is used when getting from a db. This is a reference and hence does not contain a qty */
-	char name[25];
-	char id[11];
-	float price;
-} sProduct;
-
 struct _initList	{
 	//This contains all the details related to the core working of the package.
 	int lBillNumber;

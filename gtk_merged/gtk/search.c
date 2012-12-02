@@ -19,6 +19,7 @@ int gtk_search_page()	{
 	GtkTreeSelection *selection;
 	static struct _search_entryData data;
 	static struct _search_modRecData mRecData;
+	static int delId;
 
 	//We set up the main window
 	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -26,7 +27,7 @@ int gtk_search_page()	{
 	gtk_window_set_default_size(GTK_WINDOW(mWindow), 400, 500);
 	gtk_window_set_position(GTK_WINDOW(mWindow), GTK_WIN_POS_CENTER);
 	gtk_container_set_border_width(GTK_CONTAINER(mWindow), 10);
-	g_signal_connect(mWindow, "destroy", G_CALLBACK(gtk_sub_window_quit), NULL);
+	delId = g_signal_connect(mWindow, "destroy", G_CALLBACK(gtk_sub_window_quit), NULL);
 
 	//We now set up and use the alignment options
 	vBox = gtk_vbox_new(FALSE, 10);
@@ -61,7 +62,7 @@ int gtk_search_page()	{
 	label = gtk_label_new("Message Box.");
 	data.label = label;
 	mRecData.label = label;
-	gtk_widget_set_size_request(label, 200, 300);
+	gtk_widget_set_size_request(label, 200, 250);
 	gtk_box_pack_start(GTK_BOX(vBox), label, 0, 0, 0);
 
 	//Now we add the delete and mod item buttons
@@ -85,6 +86,11 @@ int gtk_search_page()	{
 
 	//we add the hBox to the vBox and then to the mWindow
 	gtk_box_pack_start(GTK_BOX(vBox), hBox, 0, 0, 0);
+	//We add the Return to Main button to the bottom
+	button = gtk_button_new_with_label("Return to Main");
+	gtk_widget_set_size_request(button, 200, 40);
+	g_signal_connect(button, "clicked", G_CALLBACK(gtk_sub_window_quit), &delId);
+	gtk_box_pack_start(GTK_BOX(vBox), button, 0, 0, 0);
 	align = gtk_alignment_new(0.50, 0.50, 0, 0);
 	gtk_container_add(GTK_CONTAINER(align), vBox);
 	gtk_container_add(GTK_CONTAINER(mWindow), align);

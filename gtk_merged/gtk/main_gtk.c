@@ -1,5 +1,6 @@
 extern GtkWidget *mWindow;
 extern WindowDetails cWindowDetails;
+extern struct _mainGtk_labelData mainListAddr;
 
 void main_gtk_list_init(GtkWidget *list, char *heading);
 
@@ -11,7 +12,6 @@ int gtk_main_page()	{
 	GtkWidget *list;
 	GtkWidget *scrollWindow;
 	char *temp;
-	struct _mainGtk_labelData EData;
 
 	//We start with the main window
 	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -34,7 +34,7 @@ int gtk_main_page()	{
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollWindow), GTK_SHADOW_ETCHED_IN);
 	list = gtk_tree_view_new();
-	EData.entryMessage = list;
+	mainListAddr.stockBar = list;
 	gtk_widget_set_size_request(list, 350, 200);
 	main_gtk_list_init(list, "Low Stock Warnings.");
 	main_gtk_set_lowstock(list);
@@ -45,12 +45,12 @@ int gtk_main_page()	{
 	//This is for the New Bill
 	button = gtk_button_new_with_label("New Bill");
 	gtk_widget_set_size_request(button, 150, 50);
-	g_signal_connect(button, "clicked", G_CALLBACK(new_bill), &EData);
+	g_signal_connect(button, "clicked", G_CALLBACK(new_bill), NULL);
 	gtk_box_pack_start(GTK_BOX(vBoxTemp), button, 0, 0, 0);
 	//This is for Show inv
 	button = gtk_button_new_with_label("Show Inventory");
 	gtk_widget_set_size_request(button, 150, 50);
-	g_signal_connect(button, "clicked", G_CALLBACK(show_inv), &EData);
+	g_signal_connect(button, "clicked", G_CALLBACK(show_inv), NULL);
 	gtk_box_pack_start(GTK_BOX(vBoxTemp), button, 0, 0, 0);
 	//Now we add the vBoxTemp into the hBox and in turn that to the hBox
 	gtk_box_pack_start(GTK_BOX(hBox), vBoxTemp, 0, 0, 0);
@@ -62,7 +62,7 @@ int gtk_main_page()	{
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollWindow), GTK_SHADOW_ETCHED_IN);
 	list = gtk_tree_view_new();
-	EData.entryStatistics = list;
+	mainListAddr.statBar = list;
 	gtk_widget_set_size_request(list, 350, 200);
 	main_gtk_list_init(list, "Statistics");
 	main_gtk_set_statistics(list);
@@ -72,12 +72,12 @@ int gtk_main_page()	{
 	vBoxTemp = gtk_vbox_new(TRUE, 10);
 	button = gtk_button_new_with_label("Check Inventory");
 	gtk_widget_set_size_request(button, 150, 50);
-	g_signal_connect(button, "clicked", G_CALLBACK(check_inv), &EData);
+	g_signal_connect(button, "clicked", G_CALLBACK(check_inv), NULL);
 	gtk_box_pack_start(GTK_BOX(vBoxTemp), button, 0 , 0 ,0);
 	//Now a button for New item
 	button =gtk_button_new_with_label("New Item");
 	gtk_widget_set_size_request(button, 150, 50);
-	g_signal_connect(button, "clicked", G_CALLBACK(new_item), &EData);
+	g_signal_connect(button, "clicked", G_CALLBACK(new_item), NULL);
 	gtk_box_pack_start(GTK_BOX(vBoxTemp), button, 0 , 0 ,0);
 	//Now we add the vBoxTemp to hBox and finally to vBoxMain
 	gtk_box_pack_start(GTK_BOX(hBox), vBoxTemp, 0, 0, 0);

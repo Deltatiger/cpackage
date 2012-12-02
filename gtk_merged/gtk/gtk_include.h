@@ -13,3 +13,5 @@
 #include "search.c"
 //New bill page
 #include "newbill.c"
+//Show in page
+#include "showinv.c"

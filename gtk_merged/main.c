@@ -2,6 +2,7 @@
 
 GtkWidget *mWindow;
 WindowDetails cWindowDetails;
+struct _mainGtk_labelData mainListAddr;
 
 int main(int argc, char *argv[])	{
 	gtk_init(&argc, &argv);

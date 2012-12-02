@@ -38,7 +38,7 @@ void get_from_db(productList *t, int *count, const char *fileName)	{
 		ch = getc(fp);
 	}
 	*count = i;
-	g_print("\nReading %d items.", *count);
+	g_print("\nReading %d Values. (i is %d )",*count, i);
 }
 
 void db_write(productList *t, int count, const char *fileName)	{
@@ -72,7 +72,6 @@ void db_write(productList *t, int count, const char *fileName)	{
 		}
 	}
 	fclose(fp);
-	g_print("\nWriting %d items.", count);
 }
 
 void remove_entry(const char *nameId, const char *fileName)	{
@@ -101,7 +100,6 @@ void remove_entry(const char *nameId, const char *fileName)	{
 		}
 	}
 	db_write(temp, count, fileName);
-	g_print("\nRemoving 1 entry from %d items.", count);
 }
 void mod_entry(productList newDetails, const char *replaceNameId, const char *fileName, int changeId)	{
 	//Here the product name may have changed. So we open up the old one with the id or name and delete it. Then we write it anew where ever we need. But with the same id
@@ -118,9 +116,6 @@ void mod_entry(productList newDetails, const char *replaceNameId, const char *fi
 		remove_entry(replaceNameId, tFileName);
 	}
 	//Now that the old one is gone. We add a new one
-	if(changeId == 1)	{
-		strcpy(newDetails.id, get_new_product_id(newDetails.name));
-	}
 	if(strcmp(fileName, tFileName) != 0)	{
 		gInit.fileItemCount[tolower(tFileName[0])-97]--;
 		gInit.fileItemCount[tolower(fileName[0])-97]++;
@@ -130,19 +125,19 @@ void mod_entry(productList newDetails, const char *replaceNameId, const char *fi
 
 void search_db(productList *listOfEntries, int * const count, const char *nameId, const char *fileName)	{
 	productList temp[100];
-	int tempCount = 0, i = 0, j = 0, type;
+	int tempC = 0, i = 0, j = 0, type;
 	int strLen;
 	char temp1[20], temp2[20];
 	//This is a precaution for when searching for a single exact value
 	if(count != NULL)	{
 		*count = 0;
 	}
-	get_from_db(temp, &tempCount, fileName);
+	get_from_db(temp, &tempC, fileName);
 	strLen = strlen(nameId);
 	type = IS_NUM(nameId[0]);
 	strcpy(temp2, nameId);
 	strlwr(temp2);
-	for(i = 0; i < tempCount; i++)	{
+	for(i = 0; i <= tempC -1 ; i++)	{
 		if(type == 1)	{
 			if(strncmp( temp[i].id, temp2, strLen) == 0)	{
 				listOfEntries[j++] = temp[i];
@@ -160,7 +155,7 @@ void search_db(productList *listOfEntries, int * const count, const char *nameId
 	}
 	if(j == 0)	{
 		//Error message to indicate that no entry was found of that name
-		listOfEntries[0].name[0] = '\0';
+		strcpy(listOfEntries[0].name, "");
 	}
 }
 

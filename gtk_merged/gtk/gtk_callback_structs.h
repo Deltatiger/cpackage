@@ -13,7 +13,7 @@ struct _login_myEntries	{
 
 //main_gtk.c Structs
 struct _mainGtk_labelData	{
-	GtkWidget *entryMessage, *entryStatistics;
+	GtkWidget *stockBar, *statBar;
 };
 
 //newitem.c Structs
@@ -44,6 +44,7 @@ struct _search_2_modData	{
 	GtkWidget *nameEntry;
 	GtkWidget *qtyEntry;
 	GtkWidget *priceEntry;
+	GtkWidget *searchEntry;
 	char id[11];
 };
 
