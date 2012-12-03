@@ -109,6 +109,8 @@ static void login_user(GtkWidget *widget,struct _login_myEntries *entry)	{
 		gtk_widget_destroy(mWindow);
 		//Now that the old widget is gone. Lets call the main_gtk
 		gtk_main_page();
+		gtk_entry_set_text(GTK_ENTRY(entry->entryName), "");
+		gtk_entry_set_text(GTK_ENTRY(entry->entryPass), "");
 	} else {
 		sprintf(dbPass, "Invalid Login Details.");
 		show_error(NULL, dbPass);
@@ -405,6 +407,7 @@ void newbill_entry_changed(GtkWidget *widget, gpointer data)	{
 	struct _newbill_select_data * eData = data; 
 	productList temp[100];
 	char filename[9], ch;
+	int delId;
 	text = gtk_entry_get_text(GTK_ENTRY(eData->nameEntry));
 	if(strlen(text) < 1)	{
 		remove_all(eData->sugList);

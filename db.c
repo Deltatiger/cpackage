@@ -95,6 +95,7 @@ void remove_entry(const char *nameId, const char *fileName)	{
 		}
 	}
 	db_write(temp, count, fileName);
+	gInit.fileItemCount[fileName[0]-97]--;
 }
 void mod_entry(struct productList newDetails, const char *replaceNameId, const char *fileName)	{
 	struct productList temp[200];

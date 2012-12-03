@@ -19,7 +19,7 @@ int gtk_showinv_page()	{
 	//we make the new main window
 	mWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mWindow), "Complete Inventory");
-	gtk_window_set_default_size(GTK_WINDOW(mWindow), 500, 600);
+	gtk_window_set_default_size(GTK_WINDOW(mWindow), 700, 600);
 	gtk_window_set_position(GTK_WINDOW(mWindow), GTK_WIN_POS_CENTER);
 	g_signal_connect(mWindow, "destroy", G_CALLBACK(gtk_sub_window_quit), NULL);
 
@@ -27,7 +27,7 @@ int gtk_showinv_page()	{
 	scrollWindow = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollWindow), GTK_SHADOW_ETCHED_IN);
-	gtk_widget_set_size_request(scrollWindow, 500, 500);
+	gtk_widget_set_size_request(scrollWindow, 650, 550);
 
 	//We make a list view to fit everything
 	list = gtk_tree_view_new();
@@ -41,17 +41,17 @@ int gtk_showinv_page()	{
 	//column two
 	column = gtk_tree_view_column_new_with_attributes("Product Name", renderer, "text", 1, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_fixed_width(column, 150);
+	gtk_tree_view_column_set_fixed_width(column, 200);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	//column three
 	column = gtk_tree_view_column_new_with_attributes("Product Stock", renderer, "text", 2, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_fixed_width(column, 75);
+	gtk_tree_view_column_set_fixed_width(column, 125);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	//cou=lumn four
 	column = gtk_tree_view_column_new_with_attributes("Product Price", renderer, "text", 3, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_fixed_width(column, 75);
+	gtk_tree_view_column_set_fixed_width(column, 125);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	//Finalize the data
 	store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_FLOAT);
